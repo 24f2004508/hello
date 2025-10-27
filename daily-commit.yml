@@ -1,7 +1,7 @@
-
 name: Daily Commit
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: '30 5 * * *'  # Runs daily at 5:30 AM UTC
 
@@ -17,10 +17,13 @@ jobs:
         run: |
           echo "Last updated: $(date -u)" > status.txt
 
-      - name: Commit changes
+      - name: Push changes
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
         run: |
           git config --global user.name "DevSync Bot"
           git config --global user.email "24f2004508@ds.study.iitm.ac.in"
+          git remote set-url origin https://x-access-token:${GH_PAT}@github.com/${{ github.repository }}
           git add status.txt
           git commit -m "Daily update: $(date -u)" || echo "No changes to commit"
           git push
